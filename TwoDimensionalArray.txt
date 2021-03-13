@@ -1,0 +1,572 @@
+INCLUDE Irvine32.inc
+
+CalculateSumAndAverageOfRows PROTO, table:PTR DWORD , col:DWORD , row:DWORD , Sum:PTR DWORD , Avg:PTR DWORD
+CalculateSumAndAverageOfColumns PROTO, table:PTR DWORD , col:DWORD , row:DWORD , Sum:PTR DWORD , Avg: PTR DWORD
+CalculateMaxInRows PROTO, table:PTR DWORD , col:DWORD , row:DWORD , Max:PTR DWORD
+CalculateMaxInColumns PROTO, table:PTR DWORD , col:DWORD , row:DWORD , Max:PTR DWORD
+CalculateMinInRows PROTO, table:PTR DWORD , col:DWORD , row:DWORD , Min:PTR DWORD
+CalculateMinInColumns PROTO, table:PTR DWORD , col:DWORD , row:DWORD , Min:PTR DWORD
+CalculateMaxOfTable PROTO, table:PTR DWORD , col:DWORD , row:DWORD , Max:PTR DWORD
+CalculateMinOfTable PROTO, table:PTR DWORD , col:DWORD , row:DWORD , Min:PTR DWORD
+CalculateSumAndAverageOfTable PROTO, table:PTR DWORD , col:DWORD , row:DWORD , Sum:PTR DWORD , Avg:PTR DWORD
+
+.data
+
+Matrix BYTE 1,2,3,4,5,6,7,8,9,10
+Rowsize = ($ - Matrix)
+		BYTE 1,2,3,4,5,6,7,8,9,10
+		BYTE 1,2,3,4,5,6,7,8,9,10
+		BYTE 1,2,3,4,5,6,7,8,9,10
+		BYTE 1,2,3,4,5,6,7,8,9,10
+		BYTE 1,2,3,4,5,6,7,8,9,10
+		BYTE 1,2,3,4,5,6,7,8,9,10
+		BYTE 1,2,3,4,5,6,7,8,9,10
+		BYTE 1,2,3,4,5,6,7,8,9,10
+		BYTE 1,2,3,4,5,6,7,8,9,10
+
+Col_Index DWORD 0
+Row_Index DWORD 0
+
+; -----------------------------------------------------------
+
+SumOfRows BYTE 10 DUP (0)
+SumOfColumns BYTE 10 DUP (0)
+MaxInRows BYTE 10 DUP (0)
+MaxInColumns BYTE 10 DUP (0)
+MinInRows BYTE 10 DUP (0)
+MinInColumns BYTE 10 DUP (0)
+AverageOfColumns BYTE 10 DUP (0)
+AverageOfRows BYTE 10 DUP (0)
+MaxOfTable BYTE 0
+MinOfTable BYTE 0
+SumOfTable WORD 0
+AverageOfTable BYTE 0
+
+;------------------------------------------------------------
+
+space BYTE " " , 0
+message1 BYTE "Sum Of Each Row: " , 0
+message2 BYTE "Sum Of Each Column: " , 0
+message3 BYTE "Max In Each Row: " , 0
+message4 BYTE "Max In Each Column: " , 0
+message5 BYTE "Min In Each Row: " , 0
+message6 BYTE "Min In Each Column: " , 0
+message7 BYTE "Average Of Each Row: " , 0
+message8 BYTE "Average Of Each Columm: " , 0
+message9 BYTE "Sum Of Table: " , 0
+message10 BYTE "Max Of Table: " , 0
+message11 BYTE "Min Of Table: " , 0
+message12 BYTE "Average Of Table: " , 0 
+
+;------------------------------------------------------------
+.code
+main PROC
+
+INVOKE CalculateSumAndAverageOfRows, ADDR MATRIX , Col_Index , Row_Index , ADDR SumOfRows , ADDR AverageOfRows
+CALL CRLF
+INVOKE CalculateSumAndAverageOfColumns, ADDR MATRIX , Col_Index , Row_Index , ADDR SumOfColumns , ADDR AverageOfColumns
+CALL CRLF
+INVOKE CalculateMaxInRows, ADDR MATRIX , Col_Index , Row_Index , ADDR MaxInRows
+CALL CRLF
+INVOKE CalculateMaxInColumns, ADDR MATRIX , Col_Index , Row_Index , ADDR MaxInColumns
+CALL CRLF
+INVOKE CalculateMinInRows, ADDR MATRIX , Col_Index , Row_Index , ADDR MinInRows
+CALL CRLF
+INVOKE CalculateMinInColumns, ADDR MATRIX , Col_Index , Row_Index , ADDR MinInColumns
+CALL CRLF
+INVOKE CalculateMaxOfTable, ADDR MATRIX , Col_Index , Row_Index , ADDR MaxOfTable
+CALL CRLF
+INVOKE CalculateMinOfTable, ADDR MATRIX , Col_Index , Row_Index , ADDR MinOfTable
+CALL CRLF
+INVOKE CalculateSumAndAverageOfTable, ADDR MATRIX , Col_Index , Row_Index , ADDR SumOfTable , ADDR AverageOfTable
+
+exit
+main ENDP
+
+CalculateSumAndAverageOfRows PROC, table:PTR DWORD , col:DWORD , row:DWORD , Sum:PTR DWORD , Avg:PTR DWORD
+LOCAL temp:DWORD
+
+mov eax , 0
+mov ecx , RowSize
+mov edi , Sum
+L1:
+	mov temp , ecx
+	mov ecx , RowSize
+	L2:
+		mov ebx , table
+		mov eax , RowSize
+		mul row
+		ADD ebx , eax
+		mov esi , col
+		mov al , [ebx + esi]
+		add [edi] , al
+		inc col
+	LOOP L2
+	mov ecx , temp
+	inc row 
+	mov col , 0
+	inc edi
+LOOP L1
+
+mov edx , offset message1
+CALL WriteString
+mov ecx , RowSize
+mov eax , 0
+mov edi , Sum
+L3:
+	mov al , [edi]
+	CALL WriteDec
+	mov edx , offset space
+	CALL WriteString
+	inc edi
+LOOP L3
+CALL CRLF
+CALL CRLF
+mov ecx , RowSize
+mov esi , Sum
+mov edi , Avg
+L4:
+	mov eax , 0		
+	mov al , [esi]
+	mov bl , RowSize
+	div bl
+	mov [edi] , al
+	inc esi
+	inc edi
+LOOP L4
+
+mov edx , offset message7
+CALL WriteString
+mov ecx , RowSize
+mov eax , 0
+mov edi , Avg
+L5:
+	mov al , [edi]
+	CALL WriteDec
+	mov edx , offset space
+	CALL WriteString
+	inc edi
+LOOP L5
+CALL CRLF
+
+RET 20
+CalculateSumAndAverageOfRows ENDP
+
+CalculateSumAndAverageOfColumns PROC, table:PTR DWORD , col:DWORD , row:DWORD , Sum:PTR DWORD , Avg: PTR DWORD
+LOCAL temp:DWORD
+mov eax , 0
+mov ecx , RowSize
+mov edi , Sum
+L1:
+	mov temp , ecx
+	mov ecx , RowSize
+	L2:
+		mov ebx , table
+		mov eax , RowSize
+		mul row
+		ADD ebx , eax
+		mov esi , col
+		mov al , [ebx + esi]
+		add [edi] , eax
+		inc row
+	LOOP L2
+	mov ecx , temp
+	inc col
+	mov row , 0
+	inc edi
+LOOP L1
+
+mov edx , offset message2
+CALL WriteString
+mov ecx , RowSize
+mov eax , 0
+mov edi , Sum
+L3:
+	mov al , [edi]
+	CALL WriteDec
+	mov edx , offset space
+	CALL WriteString
+	inc edi
+LOOP L3
+CALL CRLF
+CALL CRLF
+mov ecx , RowSize
+mov esi , Sum
+mov edi , Avg
+L4:
+	mov al , [esi]
+	mov bl , RowSize
+	div bl
+	mov [edi] , al
+	inc esi
+	inc edi
+LOOP L4
+
+mov edx , offset message8
+CALL WriteString
+mov ecx , RowSize
+mov eax , 0
+mov edi , Avg
+L5:
+	mov al , [edi]
+	CALL WriteDec
+	mov edx , offset space
+	CALL WriteString
+	inc edi
+LOOP L5
+CALL CRLF
+
+RET 20
+CalculateSumAndAverageOfColumns ENDP
+
+CalculateMaxInRows PROC, table:PTR DWORD , col:DWORD , row:DWORD , Max:PTR DWORD
+LOCAL temp:DWORD
+
+mov eax , 0
+mov ecx , RowSize
+mov edi , Max 
+mov row , 0
+mov col , 0
+L1:
+	mov temp , ecx
+	mov ecx , RowSize
+	L2:
+		mov ebx , table
+		mov eax , RowSize
+		mul row
+		ADD ebx , eax
+		mov esi , col
+		mov al , [ebx + esi]
+		cmp eax , [edi]
+		JNGE J1
+		mov [edi] , eax
+		J1:
+		inc col
+	LOOP L2
+	mov ecx , temp
+	inc row 
+	mov col , 0
+	inc edi
+LOOP L1
+
+mov edx , offset message3
+CALL WriteString
+mov ecx , RowSize
+mov eax , 0
+mov edi , Max
+L3:
+	mov al , [edi]
+	CALL WriteDec
+	mov edx , offset space
+	CALL WriteString
+	inc edi
+LOOP L3
+CALL CRLF
+
+RET 20
+CalculateMaxInRows ENDP
+
+CalculateMaxInColumns PROC, table:PTR DWORD , col:DWORD , row:DWORD , Max:PTR DWORD
+LOCAL temp:DWORD
+
+mov eax , 0
+mov ecx , RowSize
+mov edi , Max 
+mov row , 0
+mov col , 0
+L1:
+	mov temp , ecx
+	mov ecx , RowSize
+	L2:
+		mov ebx , table
+		mov eax , RowSize
+		mul row
+		ADD ebx , eax
+		mov esi , col
+		mov al , [ebx + esi]
+		cmp eax , [edi]
+		JNGE J1
+		mov [edi] , eax
+		J1:
+		inc row
+	LOOP L2
+	mov ecx , temp
+	inc col
+	mov row , 0
+	inc edi
+LOOP L1
+
+mov edx , offset message4
+CALL WriteString
+mov ecx , RowSize
+mov eax , 0
+mov edi , Max
+L3:
+	mov al , [edi]
+	CALL WriteDec
+	mov edx , offset space
+	CALL WriteString
+	inc edi
+LOOP L3
+CALL CRLF
+
+RET 20
+CalculateMaxInColumns ENDP
+
+CalculateMinInRows PROC, table:PTR DWORD , col:DWORD , row:DWORD , Min:PTR DWORD
+LOCAL temp:DWORD
+
+mov eax , 0
+mov ecx , RowSize
+mov edi , Min 
+mov row , 0
+mov col , 0
+L1:
+	mov temp , ecx
+	mov ecx , RowSize
+	mov ebx , table
+	mov eax , RowSize
+	mul row
+	add ebx , eax
+	mov esi , col
+	mov al , [ebx+esi]
+	mov [edi] , al
+	L2:
+		mov ebx , table
+		mov eax , RowSize
+		mul row
+		ADD ebx , eax
+		mov esi , col
+		mov al , [ebx + esi]
+		cmp eax , [edi]
+		JGE J1
+		mov [edi] , eax
+		J1:
+		inc col
+	LOOP L2
+	mov ecx , temp
+	inc row 
+	mov col , 0
+	inc edi
+LOOP L1
+
+mov edx , offset message5
+CALL WriteString
+mov ecx , RowSize
+mov eax , 0
+mov edi , Min
+L3:
+	mov al , [edi]
+	CALL WriteDec
+	mov edx , offset space
+	CALL WriteString
+	inc edi
+LOOP L3
+CALL CRLF
+
+RET 20
+CalculateMinInRows ENDP
+
+CalculateMinInColumns PROC, table:PTR DWORD , col:DWORD , row:DWORD , Min:PTR DWORD
+LOCAL temp:DWORD
+
+mov eax , 0
+mov ecx , RowSize
+mov edi , Min 
+mov row , 0
+mov col , 0
+L1:
+	mov temp , ecx
+	mov ecx , RowSize
+	mov ebx , table
+	mov eax , RowSize
+	mul row
+	add ebx , eax
+	mov esi , col
+	mov al , [ebx+esi]
+	mov [edi] , al
+	L2:
+		mov ebx , table
+		mov eax , RowSize
+		mul row
+		ADD ebx , eax
+		mov esi , col
+		mov al , [ebx + esi]
+		cmp eax , [edi]
+		JGE J1
+		mov [edi] , eax
+		J1:
+		inc row
+	LOOP L2
+	mov ecx , temp
+	inc col
+	mov row , 0
+	inc edi
+LOOP L1
+
+mov edx , offset message6
+CALL WriteString
+mov ecx , RowSize
+mov eax , 0
+mov edi , Min
+L3:
+	mov al , [edi]
+	CALL WriteDec
+	mov edx , offset space
+	CALL WriteString
+	inc edi
+LOOP L3
+CALL CRLF
+
+RET 20
+CalculateMinInColumns ENDP
+
+CalculateMaxOfTable PROC, table:PTR DWORD , col:DWORD , row:DWORD , Max:PTR DWORD
+LOCAL temp:DWORD
+
+mov eax , 0
+mov ecx , RowSize
+mov edi , Max 
+mov row , 0
+mov col , 0
+L1:
+	mov temp , ecx
+	mov ecx , RowSize
+	L2:
+		mov ebx , table
+		mov eax , RowSize
+		mul row
+		ADD ebx , eax
+		mov esi , col
+		mov al , [ebx + esi]
+		cmp al , [edi]
+		JNGE J1
+		mov [edi] , al
+		J1:
+		inc col
+	LOOP L2
+	mov ecx , temp
+	inc row 
+	mov col , 0
+LOOP L1
+
+mov edx , offset message10
+CALL WriteString
+mov eax , 0
+mov edi , Max
+
+mov al , [edi]
+CALL WriteDec
+mov edx , offset space
+CALL WriteString
+CALL CRLF
+
+RET 20
+CalculateMaxOfTable ENDP
+
+CalculateMinOfTable PROC, table:PTR DWORD , col:DWORD , row:DWORD , Min:PTR DWORD
+LOCAL temp:DWORD
+
+mov eax , 0
+mov ecx , RowSize
+mov edi , Min
+mov row , 0
+mov col , 0
+mov ebx , table
+mov eax , RowSize
+mul row
+add ebx , eax
+mov esi , col
+mov al , [ebx+esi]
+mov [edi] , al
+L1:
+	mov temp , ecx
+	mov ecx , RowSize
+	L2:
+		mov ebx , table
+		mov eax , RowSize
+		mul row
+		ADD ebx , eax
+		mov esi , col
+		mov al , [ebx + esi]
+		cmp eax , [edi]
+		JGE J1
+		mov [edi] , eax
+		J1:
+		inc col
+	LOOP L2
+	mov ecx , temp
+	inc row 
+	mov col , 0
+LOOP L1
+
+mov edx , offset message11
+CALL WriteString
+mov eax , 0
+mov edi , Min
+
+mov al , [edi]
+CALL WriteDec
+mov edx , offset space
+CALL WriteString
+CALL CRLF
+
+RET 20
+CalculateMinOfTable ENDP
+
+CalculateSumAndAverageOfTable PROC, table:PTR DWORD , col:DWORD , row:DWORD , Sum:PTR DWORD , Avg:PTR DWORD
+LOCAL temp:DWORD
+
+mov eax , 0
+mov ecx , RowSize
+mov edi , Sum
+L1:
+	mov temp , ecx
+	mov ecx , RowSize
+	L2:
+		mov ebx , table
+		mov eax , RowSize
+		mul row
+		ADD ebx , eax
+		mov esi , col
+		mov al , [ebx + esi]
+		add [edi] , ax
+		inc col
+	LOOP L2
+	mov ecx , temp
+	inc row 
+	mov col , 0
+LOOP L1
+
+mov edx , offset message9
+CALL WriteString
+mov eax , 0
+mov edi , Sum
+
+mov al , [edi]
+CALL WriteDec
+mov edx , offset space
+CALL WriteString
+CALL CRLF
+CALL CRLF
+mov ax , [edi]
+mov bl , RowSize
+div bl
+mov esi , avg
+mov [esi] , al
+
+mov edx , offset message12
+CALL WriteString
+mov eax , 0
+mov edi , Avg
+
+mov al , [edi]
+CALL WriteDec
+mov edx , offset space
+CALL WriteString
+CALL CRLF
+CALL CRLF
+
+RET 20
+CalculateSumAndAverageOfTable ENDP
+END main
