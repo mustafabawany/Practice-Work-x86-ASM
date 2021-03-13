@@ -1,0 +1,41 @@
+TITLE My Program (test.asm)
+INCLUDE Irvine32.inc
+
+.data
+
+arr DD 20h,2h,6h,5h,4h,10h
+temp DD ?
+
+.code
+main PROC
+mov ecx, LENGTHOF arr
+L1:
+	mov edx,ecx
+	mov ecx, LENGTHOF arr
+	dec ecx
+	mov esi, 0
+	mov edi, 1
+	L2:
+		mov eax , arr[esi * TYPE arr] ; eax = arr[i]
+		mov ebx , arr[edi * TYPE arr] ; ebx = arr[i+1]
+		cmp eax,ebx
+		JL J1
+		mov temp, eax ;edx=16
+		mov eax, ebx ;eax=9
+		mov ebx, temp ; ebx = 16
+		mov arr[esi * TYPE arr] , eax ; eax = arr[i]
+		mov arr[edi * TYPE arr] , ebx ; ebx = arr[i+1]
+		inc esi
+		inc edi
+	J1:
+		loop L2
+		mov ecx,edx
+loop L1
+
+mov eax, arr ; Firest Value
+mov ebx, arr[6 * TYPE arr] ; Last Value
+
+call DumpRegs
+exit
+main ENDP
+END main
